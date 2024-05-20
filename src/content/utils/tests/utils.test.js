@@ -1,29 +1,31 @@
-import {
-	getStylesString,
-	getFilteredExistingStyles,
-	removeDataAttributes,
-} from '../dom';
+import { getStylesString, getFilteredExistingStyles } from '../dom';
 
-test( 'Convert styles object to a string', () => {
-	const styles = {
-		color: 'red',
-		'background-color': 'blue',
-	};
+describe( 'Style formatting', function () {
+	test( 'Convert styles object to a string', () => {
+		const styles = {
+			color: 'red',
+			'background-color': 'blue',
+		};
 
-	const result = getStylesString( styles );
+		const result = getStylesString( styles );
 
-	expect( result ).toBe( 'color:red;background-color:blue' );
-} );
+		expect( result ).toBe( 'color:red;background-color:blue' );
+	} );
 
-test( 'Get the existing styles of the element that are supported', () => {
-	const inlineStyles = 'color:red;background-color:blue';
+	test( 'Retrieves filtered inline styles from the element', () => {
+		let inlineStyles = 'color:red;background-color:blue';
+		inlineStyles += ';margin:0;padding:0;'; // Should be ignored
 
-	const supportedProperties = [ 'color', 'background-color' ];
+		const supportedProperties = [ 'color', 'background-color' ];
 
-	const result = getFilteredExistingStyles( inlineStyles, supportedProperties );
+		const result = getFilteredExistingStyles(
+			inlineStyles,
+			supportedProperties
+		);
 
-	expect( result ).toEqual( {
-		color: 'red',
-		'background-color': 'blue',
+		expect( result ).toEqual( {
+			color: 'red',
+			'background-color': 'blue',
+		} );
 	} );
 } );
