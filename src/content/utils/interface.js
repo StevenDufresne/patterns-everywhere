@@ -3,7 +3,7 @@
  * @param {HTMLElement} element
  */
 export const addStyle = ( element ) => {
-	if ( ! ( element instanceof HTMLElement ) ) {
+	if ( ! element ) {
 		return;
 	}
 	element.style.outline = '1px solid black';
@@ -15,7 +15,7 @@ export const addStyle = ( element ) => {
  * @param {HTMLElement} element
  */
 export const removeStyle = ( element ) => {
-	if ( ! ( element instanceof HTMLElement ) ) {
+	if ( ! element ) {
 		return;
 	}
 	element.style.outline = '';

@@ -34,7 +34,6 @@ export const togglePlugin = ( isEnabled ) => {
 		{ active: true, currentWindow: true },
 		function ( tabs ) {
 			if ( ! tabs || ! tabs.length ) {
-				console.log( 'no active tab' );
 				return;
 			}
 

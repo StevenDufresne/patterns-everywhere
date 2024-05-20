@@ -24,7 +24,6 @@ registerBlockType( customBlockName, {
 					},
 				} ),
 				transform: ( element, handler ) => {
-					console.log( 'running transform' );
 					/**
 					 * Get the key and value from a string.
 					 * @param {string} value The value to split.
@@ -235,8 +234,6 @@ registerBlockType( customBlockName, {
 						}
 
 						const attrs = getBlockAttributes( blockName, node );
-
-						console.log( blockName );
 
 						return createBlock( blockName, attrs, innerBlocks );
 					}
