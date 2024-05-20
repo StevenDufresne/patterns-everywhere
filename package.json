@@ -1,0 +1,17 @@
+{
+	"scripts": {
+		"build": "npm run build:content && npm run build:wp-plugin && npm run build:background",
+		"build:content": "wp-scripts build --webpack-src-dir=src/content --output-path=build/content",
+		"build:wp-plugin": "wp-scripts build --webpack-src-dir=src/wp-editor-modifications --output-path=build/wp-editor-modifications",
+    "build:background": "wp-scripts build --webpack-src-dir=src/background --output-path=build/background",
+		"lint:js": "wp-scripts lint-js",
+		"format": "wp-scripts format",
+		"test": "jest"
+	},
+	"devDependencies": {
+		"jest": "^29.7.0"
+	},
+	"dependencies": {
+		"@wordpress/scripts": "^27.9.0"
+	}
+}
