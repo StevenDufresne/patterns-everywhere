@@ -8,11 +8,20 @@ import {
 } from './utils.js';
 
 chrome.action.onClicked.addListener( () => {
-	getToggleState( ( isEnabled ) => {
-		setToggleView( isEnabled );
-		togglePlugin( isEnabled );
+	getToggleState( ( currentState ) => {
+		setToggleView( ! currentState );
+		togglePlugin( ! currentState );
 
 		// Flip the state and save it
-		setToggleState( ! isEnabled );
+		setToggleState( ! currentState );
 	} );
+} );
+
+chrome.tabs.onUpdated.addListener( function ( tabId, changeInfo ) {
+	if ( changeInfo.status === 'complete' ) {
+		// Turn off the plugin on page load
+		setToggleView( false );
+		togglePlugin( false );
+		setToggleState( false );
+	}
 } );

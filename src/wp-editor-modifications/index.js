@@ -8,15 +8,18 @@ const getBlockAttributes = wp.blocks.getBlockAttributes;
 
 const customBlockName = 'patterns-everywhere/block-for-transform';
 
+const matchingElements = [ 'div', 'section', 'main' ];
+
 registerBlockType( customBlockName, {
-	title: 'My Custom Block',
+	title: 'Pattern Everywhere Block',
 	icon: 'smiley',
 	category: 'common',
 	transforms: {
 		from: [
 			{
 				type: 'raw',
-				isMatch: ( node ) => node.nodeName === 'DIV',
+				isMatch: ( node ) =>
+					matchingElements.includes( node.nodeName.toLowerCase() ),
 				schema: () => ( {
 					div: {
 						attributes: [ 'style' ],
@@ -48,11 +51,19 @@ registerBlockType( customBlockName, {
 
 					/**
 					 * Convert the style attributes to block attributes.
-					 * @param {string} props The style attributes.
+					 * @param {string} props   The style attributes.
+					 * @param {string} tagName The tag name of the element.
 					 * @return {Object} The block attributes.
 					 */
 					function convertPropsToAttributes( props ) {
 						const styleAttributes = {
+							border: {
+								radius: {},
+								top: {},
+								right: {},
+								bottom: {},
+								left: {},
+							},
 							color: {},
 							spacing: {
 								padding: {},
@@ -67,13 +78,21 @@ registerBlockType( customBlockName, {
 
 						const layoutAttributes = {};
 						const typographyAttributes = {};
+						let align = '';
+						let textAlign = '';
 
 						const styleMappings = {
 							display: ( value ) => {
 								if ( value === 'flex' ) {
-									layoutAttributes.type = 'flex';
+									layoutAttributes.type = value;
 									layoutAttributes.flexWrap = 'nowrap';
 								}
+
+								if ( value === 'grid' ) {
+									layoutAttributes.type = value;
+								}
+
+								// Don't handle `display:block`; causes Gutenberg crashes.
 							},
 							'justify-content': ( value ) => {
 								layoutAttributes.justifyContent = value;
@@ -120,6 +139,44 @@ registerBlockType( customBlockName, {
 							'margin-top': ( value ) => {
 								styleAttributes.spacing.margin.top = value;
 							},
+							'border-top-left-radius': ( value ) => {
+								styleAttributes.border.radius.topLeft = value;
+							},
+							'border-top-right-radius': ( value ) => {
+								styleAttributes.border.radius.topRight = value;
+							},
+							'border-bottom-left-radius': ( value ) => {
+								styleAttributes.border.radius.bottomLeft =
+									value;
+							},
+							'border-bottom-right-radius': ( value ) => {
+								styleAttributes.border.radius.bottomRight =
+									value;
+							},
+							'border-top-color': ( value ) => {
+								styleAttributes.border.top.color = value;
+							},
+							'border-top-width': ( value ) => {
+								styleAttributes.border.top.width = value;
+							},
+							'border-right-color': ( value ) => {
+								styleAttributes.border.right.color = value;
+							},
+							'border-right-width': ( value ) => {
+								styleAttributes.border.right.width = value;
+							},
+							'border-bottom-color': ( value ) => {
+								styleAttributes.border.bottom.color = value;
+							},
+							'border-bottom-width': ( value ) => {
+								styleAttributes.border.bottom.width = value;
+							},
+							'border-left-color': ( value ) => {
+								styleAttributes.border.left.color = value;
+							},
+							'border-left-width': ( value ) => {
+								styleAttributes.border.left.width = value;
+							},
 							'line-height': ( value ) => {
 								typographyAttributes.lineHeight = value;
 							},
@@ -131,6 +188,13 @@ registerBlockType( customBlockName, {
 							},
 							'font-style': ( value ) => {
 								typographyAttributes.fontStyle = value;
+							},
+							'text-align': ( value ) => {
+								// Paragraphs use this.
+								align = value;
+
+								// Headings use this.
+								textAlign = value;
 							},
 						};
 
@@ -148,6 +212,8 @@ registerBlockType( customBlockName, {
 							style: styleAttributes,
 							layout: layoutAttributes,
 							typography: typographyAttributes,
+							align,
+							textAlign,
 						};
 					}
 
@@ -207,7 +273,11 @@ registerBlockType( customBlockName, {
 						addFilter(
 							'blocks.getBlockAttributes',
 							'steve/thing',
-							( attrs ) => {
+							( attrs, blockType ) => {
+								if ( blockType.name !== blockName ) {
+									return attrs;
+								}
+
 								return {
 									...attrs,
 									..._getBlockAttributes( node ),
@@ -216,19 +286,26 @@ registerBlockType( customBlockName, {
 						);
 
 						// We don't want to run the transform if the node is a div or it will cause an infinite loop.
-						if ( transform && node.tagName !== 'DIV' ) {
+						if (
+							transform &&
+							! matchingElements.includes(
+								node.tagName.toLowerCase()
+							)
+						) {
 							// Right now, we can't apply styles to no div blocks.
 							// There's no way to pass style attributes through the block attributes.
 							const block = transform( node, handler );
 
-							if ( node.hasAttribute( 'class' ) ) {
-								block.attributes.className =
-									node.getAttribute( 'class' );
-							}
+							// If we default apply the classes and we copy existing gutenberg markup, it will cause validation issues.
+							// if ( node.hasAttribute( 'class' ) ) {
+							// 	block.attributes.className =
+							// 		node.getAttribute( 'class' );
+							// }
 
 							return block;
 						}
 
+						// If it's our block, we want to use the core/group block.
 						if ( customBlockName === blockName ) {
 							blockName = 'core/group';
 						}
