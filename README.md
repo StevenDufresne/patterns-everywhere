@@ -51,6 +51,36 @@ Once developer mode is enabled, three new buttons will appear near the top of th
 
 
 
+### Where to paste?
+
+You can visit the options page and it should load WordPress playground with a patched version of gutenberg that will handle the pasting.
+
+#### How to view the option page
+- Right click on the extension icon
+- Select "options"
+
+```json
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "login": true,
+    "siteOptions": {
+        "blogname": "My first Blueprint"
+    },
+    "steps": [
+ 
+        {
+            "step": "installPlugin",
+            "pluginZipFile": {
+                "resource": "url",
+                "url": "https://raw.githubusercontent.com/StevenDufresne/patterns-everywhere/trunk/gutenberg_fix.zip"
+            }
+        }
+    ]
+}
+```
+
+TODO: The patched gutenberg version is being loaded but the extension is not injecting `wp-plugin` into the iframe yet so this isn't working.
+
 ## Known Issues:
 
 ### We can't handle `<ul>/<ol>` with content in it
