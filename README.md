@@ -53,7 +53,7 @@ Once developer mode is enabled, three new buttons will appear near the top of th
 
 ## Known Issues:
 
-### We can't handle <ul>/<ol> with content in it
+### We can't handle `<ul>/<ol>` with content in it
 
 This won't work:
 
@@ -66,7 +66,7 @@ This won't work:
 
 Potential Fix: Write our own transform
 
-### We can't handle <a> with content in it
+### We can't handle `<a>` with content in it
 
 This won't work:
 
@@ -78,8 +78,24 @@ This won't work:
 
 ```
 
-Potential Fix: Write our own transform
+Potential Fix: Write our own transform.
 
-- 
-    - Idea: We'll need to write our own transform
-- W
+### Font styles are not being applied
+
+This is not working even though there is code that makes it seem like it is.
+
+### `<button>` is not converted to block
+
+There isn't a transform for this yet.
+
+### It doesn't do well with responsive design
+
+True.
+
+### It doesn't support SVGs
+
+I think we'll need a block for this.
+
+### Copying can be slow
+
+If there are alot of DOM elements, it can be slow because it's processing everything all at once. Future problem to fix.
