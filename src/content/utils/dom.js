@@ -2,6 +2,7 @@ import { getBlockSupports, shouldIgnore } from './block-supports.js';
 
 /**
  * Convert styles object to a string.
+ *
  * @param {Array} styles
  * @return {string} stylesString. IE: "margin:10px;color:red;"
  */
@@ -11,62 +12,114 @@ export const getStylesString = ( styles ) => {
 		.join( ';' );
 };
 
-function isDirectlyApplied( property, inlineStyles, matchedRules ) {
+/**
+ * Check if a property is directly applied to the element.
+ *
+ * @param {string} property
+ * @param {Object} inlineStyles
+ * @param {Array}  matchedRules
+ * @return {string} value. IE: "red" or "10px", empty if not found.
+ */
+function getDirectlyAppliedStyleValue( property, inlineStyles, matchedRules ) {
 	// Check inline styles
 	if ( inlineStyles[ property ] ) {
-		return true;
+		return inlineStyles[ property ];
 	}
 	// Check matched rules
 	for ( const style of matchedRules ) {
 		if ( style[ property ] ) {
-			return true;
+			return style[ property ];
 		}
 	}
-	return false;
+	return '';
 }
 
 /**
- * Get the computed styles of the element that are supported.
- * @param {HTMLElement} element
- * @param {Object}      computedStyles
- * @param {Document}    document
- * @return {Object} styles. Ie: { color: 'red', 'font-size': '16px' }
+ * Get all the stylesheets and their rules.
+ *
+ * @param {Document} document
+ * @return {Array} rules
  */
-export const getElementStyles = ( element, computedStyles, document ) => {
-	const matchedRules = [];
-
-	// Get all the stylesheets and their rules
+export const getStyleSheetRules = ( document ) => {
+	const rules = [];
 	const stylesheets = Array.from( document.styleSheets );
 	for ( const sheet of stylesheets ) {
 		try {
-			const rules = Array.from( sheet.cssRules || sheet.rules );
-			for ( const rule of rules ) {
-				if (
-					rule.style &&
-					rule.selectorText &&
-					element.matches( rule.selectorText )
-				) {
-					matchedRules.push( rule.style );
-				}
-			}
+			rules.push( ...Array.from( sheet.cssRules || sheet.rules ) );
 		} catch ( e ) {
 			// Ignore cross-origin stylesheets or any other errors
 			continue;
 		}
 	}
 
+	return rules;
+};
+
+/**
+ * Get the matching rules for the element.
+ *
+ * @param {HTMLElement} element
+ * @param {Array}       rules
+ * @return {Array} matchedRules
+ */
+export const getMatchingRules = ( element, rules ) => {
+	const matchedRules = [];
+
+	for ( const rule of rules ) {
+		if (
+			rule.style &&
+			rule.selectorText &&
+			element.matches( rule.selectorText )
+		) {
+			matchedRules.push( rule.style );
+		}
+	}
+
+	return matchedRules;
+};
+
+/**
+ * Get the computed styles of the element that are supported.
+ *
+ * @param {HTMLElement} element
+ * @param {Object}      computedStyles
+ * @param {Array}       rules
+ * @return {Object} styles. Ie: { color: 'red', 'font-size': '16px' }
+ */
+export const getElementStyles = ( element, computedStyles, rules ) => {
 	return Array.from( computedStyles ).reduce( ( styles, prop ) => {
 		const tagName = element.tagName;
 		const supports = getBlockSupports( tagName );
 
-		if ( supports.includes( prop ) ) {
-			const value = computedStyles.getPropertyValue( prop );
-			if ( ! shouldIgnore( tagName, prop, value ) ) {
-				// if is directly applied
-				if ( isDirectlyApplied( prop, element.style, matchedRules ) ) {
-					styles[ prop ] = value;
-				}
-			}
+		if ( ! supports.includes( prop ) ) {
+			return styles;
+		}
+
+		const value = computedStyles.getPropertyValue( prop );
+
+		if ( shouldIgnore( tagName, prop, value ) ) {
+			return styles;
+		}
+
+		const directlyAppliedValue = getDirectlyAppliedStyleValue(
+			prop,
+			element.style,
+			rules
+		);
+
+		if ( ! directlyAppliedValue ) {
+			return styles;
+		}
+
+		// If we get a CSS variable, let's use it's computed style.
+		// Its hard to figure out that value.
+		// We can try to find it with getComputedStyle(element).getPropertyValue( { variable } ), but it's not clear where it is set.
+		// It can be set on any parent element all the way up to the
+		// So we will just use the computed value for now.
+		if ( directlyAppliedValue.startsWith( 'var' ) ) {
+			styles[ prop ] = value;
+		} else {
+			styles[ prop ] = directlyAppliedValue;
 		}
 
 		return styles;
@@ -75,6 +128,9 @@ export const getElementStyles = ( element, computedStyles, document ) => {
 
 /**
  * Append computed styles.
+ * We need to keep the original element around so we can get it's computed styles.
+ * Running window.getComputedStyle on the cloned element will not return anything.
+ * So we loop through them side by side and transfer the computed styles from the original to the clone.
  *
  * @param {HTMLElement} element
  * @param {HTMLElement} clonedElement
@@ -86,29 +142,38 @@ export function addComputedStylesToElementStyleAttribute(
 	clonedElement,
 	getComputedStyle
 ) {
-	function processElement( originalElement, _clonedElement ) {
+	// TODO: These can be loaded on page load for performance.
+	const styleSheetRules = getStyleSheetRules( document );
+
+	const processElement = ( originalElement, clonedOriginalElement ) => {
+		const matchingStyleSheetRules = getMatchingRules(
+			originalElement,
+			styleSheetRules
+		);
 		const computedStyles = getElementStyles(
 			originalElement,
 			getComputedStyle( originalElement ),
-			document
+			matchingStyleSheetRules
 		);
 
 		const styleString = getStylesString( computedStyles );
 
-		// Append the styles to the clone version of the element.
+		// Append the styles to the cloned version of the element.
 		if ( styleString.length > 0 ) {
-			_clonedElement.setAttribute( 'style', styleString );
+			clonedOriginalElement.setAttribute( 'style', styleString );
+		} else {
+			// Clear it so we don't have non-matching inline styles if we don't find any matching.
+			clonedOriginalElement.removeAttribute( 'style' );
 		}
 
 		for ( let i = 0; i < originalElement.children.length; i++ ) {
 			processElement(
 				originalElement.children[ i ],
-				_clonedElement.children[ i ]
+				clonedOriginalElement.children[ i ]
 			);
 		}
-	}
+	};
 
-	// Start processing from the given element
 	processElement( element, clonedElement );
 }
 
@@ -119,16 +184,15 @@ export function addComputedStylesToElementStyleAttribute(
  * @return {string} element.outerHTML
  */
 export function getContentsToCopy( window, rootElement ) {
-	// Define supported style properties.
 	const clonedElement = rootElement.cloneNode( true );
 
 	addComputedStylesToElementStyleAttribute(
-		rootElement, // need to run window.getComputedStyle on this element, clone elements don't have computed styles
+		rootElement,
 		clonedElement,
 		window.getComputedStyle
 	);
 
-	// For now our code will trigger with a div
+	// For now, our code will trigger with a div so we need the first element to be a <div>.
 	return clonedElement.tagName !== 'DIV'
 		? `<div>${ clonedElement.outerHTML } </div>`
 		: clonedElement.outerHTML;

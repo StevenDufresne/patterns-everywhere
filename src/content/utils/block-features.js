@@ -1,3 +1,9 @@
+/**
+ * Each of these arrays contains a list of CSS properties that are supported by the block.
+ * Maybe in the future we should use the block supports API to get this information.
+ * See: https://developer.wordpress.org/block-editor/reference-guides/block-api/block-supports/
+ */
+
 export const supportsColor = [ 'color', 'background-color', 'background' ];
 
 export const supportsBorderRadius = [

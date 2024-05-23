@@ -21,7 +21,6 @@ chrome.tabs.onUpdated.addListener( function ( tabId, changeInfo ) {
 	if ( changeInfo.status === 'complete' ) {
 		// Turn off the plugin on page load
 		setToggleView( false );
-		togglePlugin( false );
 		setToggleState( false );
 	}
 } );

@@ -1,5 +1,8 @@
-const { parseHTML } = require( 'linkedom' );
-import { getStylesString, getElementStyles } from '../dom';
+// const { parseHTML } = require( 'linkedom' );
+import {
+	getStylesString,
+	//getElementStyles
+} from '../dom';
 
 describe( 'Style formatting', function () {
 	test( 'Convert styles object to a string', () => {

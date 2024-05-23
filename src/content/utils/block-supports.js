@@ -13,35 +13,6 @@ const defaultBlockElementSupports = [
 	...supportsDimensions,
 ];
 
-const supports = {
-	div: [
-		...defaultBlockElementSupports,
-		...supportsBorderRadius,
-		...supportsBorder,
-		...supportsDisplayTypes,
-	],
-	section: [
-		...defaultBlockElementSupports,
-		...supportsBorderRadius,
-		...supportsBorder,
-		...supportsDisplayTypes,
-	],
-	main: [
-		...defaultBlockElementSupports,
-		...supportsBorderRadius,
-		...supportsBorder,
-		...supportsDisplayTypes,
-	],
-	h1: defaultBlockElementSupports,
-	h2: defaultBlockElementSupports,
-	h3: defaultBlockElementSupports,
-	h4: defaultBlockElementSupports,
-	h5: defaultBlockElementSupports,
-	h6: defaultBlockElementSupports,
-	p: defaultBlockElementSupports,
-	img: [ ...supportsBorderRadius, ...supportsBorder ],
-};
-
 /**
  * Get the supported properties for a given block.
  *
@@ -49,7 +20,30 @@ const supports = {
  * @return {Array} The supported properties.
  */
 export const getBlockSupports = ( tagName ) => {
-	return supports[ tagName.toLowerCase() ] || [];
+	switch ( tagName.toLowerCase() ) {
+		case 'div':
+		case 'ul':
+		case 'section':
+		case 'main':
+			return [
+				...defaultBlockElementSupports,
+				...supportsBorderRadius,
+				...supportsBorder,
+				...supportsDisplayTypes,
+			];
+		case 'h1':
+		case 'h2':
+		case 'h3':
+		case 'h4':
+		case 'h5':
+		case 'h6':
+		case 'p':
+			return defaultBlockElementSupports;
+		case 'img':
+			return [ ...supportsBorderRadius, ...supportsBorder ];
+		default:
+			return [];
+	}
 };
 
 /**
@@ -62,27 +56,24 @@ export const getBlockSupports = ( tagName ) => {
  * @return {boolean} Whether the property should be ignored.
  */
 export const shouldIgnore = ( tagName, property, value ) => {
-	const mapping = {
-		div: [
-			...supportsBorderRadius,
-			...supportsBorder,
-			...supportsDimensions,
-		],
-		section: [
-			...supportsBorderRadius,
-			...supportsBorder,
-			...supportsDimensions,
-		],
-		main: [
-			...supportsBorderRadius,
-			...supportsBorder,
-			...supportsDimensions,
-		],
-	};
-
 	const isZeroValue = value === '0' || value === '0px';
+	let relevantProperties = [];
 
-	const relevantProperties = mapping[ tagName.toLowerCase() ] || [];
+	switch ( tagName.toLowerCase() ) {
+		case 'div':
+		case 'section':
+		case 'main':
+		case 'ul':
+			relevantProperties = [
+				...supportsBorderRadius,
+				...supportsBorder,
+				...supportsDimensions,
+			];
+			break;
+		// Add more cases here if there are other specific tags with unique supports.
+		default:
+			relevantProperties = [];
+	}
 
 	return relevantProperties.includes( property ) && isZeroValue;
 };
