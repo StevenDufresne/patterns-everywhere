@@ -5,7 +5,7 @@ This is the repository for a chrome extension that allow users to copy HTML and 
 It is composed of 3 main parts:
 - `/background` The service worker.
 - `/content` The functionality that copies the HTML and formats it for pasting.
-- `/wp-editor-modifications` Some modifications that run when using the block editor to make copy/pasting possible.
+- `/wp-plugin` Some modifications that run when using the block editor to make copy/pasting possible.
 
 
 ## Setup
@@ -23,13 +23,13 @@ In Chrome extensions, the service worker, introduced with Manifest V3, acts as a
 
 This is the Interface for copying HTML and adding it to the clipboard.
 
-### `/wp-editor-modifications`
+### `/wp-plugin`
 
 Ideally these modifications would ship with Gutenberg in the future but since this is still experimental, this plugin is loaded when viewing the block editor and we register a block so we can handle `raw` transforms. In the future, it would be more ideal to ship this in Gutenberg closer to the [source code](https://github.com/WordPress/gutenberg/tree/1240294d1c81bf50bd9383b7f1973cc16fa13a4a/packages/blocks/src/api/raw-handling).
 
 ### IMPORTANT
 
-Gutenberg currently has a `divNormaliser` that won't allow this to work. You can view the source [here](https://github.com/WordPress/gutenberg/blob/1240294d1c81bf50bd9383b7f1973cc16fa13a4a/packages/blocks/src/api/raw-handling/paste-handler.js#L195). Until we can make this configurable, you'll need to run this project on a local version of gutenberg that has this removed.
+Gutenberg currently has a `divNormaliser` that won't allow this to work. You can view the source [here](https://github.com/WordPress/gutenberg/blob/1240294d1c81bf50bd9383b7f1973cc16fa13a4a/packages/blocks/src/api/raw-handling/paste-handler.js#L195). Until we can make this configurable, you'll need to run this project on a local version of gutenberg that has that line commented out.
 
 ## How to install this extension on your computer
 ### Open Chrome Extensions Page:
