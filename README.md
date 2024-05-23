@@ -60,7 +60,7 @@ This won't work:
 ```html
 <ul>
     <li><h2>Something</h2></li>
-</u>    
+</ul>    
 
 ```
 
@@ -73,7 +73,7 @@ This won't work:
 ```html
     <a>
         <h2>Something</h2>
-        <p>Conent</p>
+        <p>Content</p>
     </a>    
 
 ```
