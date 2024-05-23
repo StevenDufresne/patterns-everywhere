@@ -51,14 +51,15 @@ Once developer mode is enabled, three new buttons will appear near the top of th
 
 
 
-### Where to paste?
+## Where to paste?
 
 You can visit the options page and it should load WordPress playground with a patched version of gutenberg that will handle the pasting.
 
-#### How to view the option page
+### How to view the option page
 - Right click on the extension icon
 - Select "options"
 
+This is the base64 being passed to Playground.
 ```json
 {
     "$schema": "https://playground.wordpress.net/blueprint-schema.json",
