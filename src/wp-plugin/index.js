@@ -140,9 +140,6 @@ registerBlockType( customBlockName, {
 								'blocks.getBlockAttributes',
 								'steve/thing',
 								( attrs, blockType ) => {
-									console.log( blockName );
-									console.log( blockType.name );
-
 									if ( blockType.name !== blockName ) {
 										return attrs;
 									}
@@ -154,13 +151,7 @@ registerBlockType( customBlockName, {
 								}
 							);
 
-							const block = transform( node );
-
-				
-							console.log( block );
-					
-
-							return block;
+							return transform( node );
 						}
 
 						// We don't want to create group blocks for empty containers.

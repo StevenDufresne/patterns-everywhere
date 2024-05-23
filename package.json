@@ -2,10 +2,11 @@
 	"scripts": {
 		"build": "npm run build:content && npm run build:wp-plugin && npm run build:background",
 		"build:content": "wp-scripts build --webpack-src-dir=src/content --output-path=build/content",
-		"build:wp-plugin": "wp-scripts build --webpack-src-dir=src/wp-editor-modifications --output-path=build/wp-editor-modifications",
+		"build:wp-plugin": "wp-scripts build --webpack-src-dir=src/wp-plugin --output-path=build/wp-plugin",
 		"build:background": "wp-scripts build --webpack-src-dir=src/background --output-path=build/background",
 		"start:content": "wp-scripts start --webpack-src-dir=src/content --output-path=build/content",
-		"start:wp-plugin": "wp-scripts start --webpack-src-dir=src/wp-editor-modifications --output-path=build/wp-editor-modifications",
+		"start:wp-plugin": "wp-scripts start --webpack-src-dir=src/wp-plugin --output-path=build/wp-plugin",
+		"start:background": "wp-scripts start --webpack-src-dir=src/wp-plugin --output-path=build/wp-plugin",
 		"lint:js": "wp-scripts lint-js",
 		"format": "wp-scripts format",
 		"test": "jest --config=jest.config.js"
