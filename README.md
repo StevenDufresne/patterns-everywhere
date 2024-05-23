@@ -48,3 +48,38 @@ Once developer mode is enabled, three new buttons will appear near the top of th
 
 - Click the "Load unpacked" button.
 - In the file dialog that opens, navigate to the directory where your extension files are located and select it.
+
+
+
+## Known Issues:
+
+### We can't handle <ul>/<ol> with content in it
+
+This won't work:
+
+```html
+<ul>
+    <li><h2>Something</h2></li>
+</u>    
+
+```
+
+Potential Fix: Write our own transform
+
+### We can't handle <a> with content in it
+
+This won't work:
+
+```html
+    <a>
+        <h2>Something</h2>
+        <p>Conent</p>
+    </a>    
+
+```
+
+Potential Fix: Write our own transform
+
+- 
+    - Idea: We'll need to write our own transform
+- W
