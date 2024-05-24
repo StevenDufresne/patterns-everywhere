@@ -59,27 +59,6 @@ You can visit the options page and it should load WordPress playground with a pa
 - Right click on the extension icon
 - Select "options"
 
-This is the base64 being passed to Playground.
-```json
-{
-    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
-    "login": true,
-    "siteOptions": {
-        "blogname": "My first Blueprint"
-    },
-    "steps": [
- 
-        {
-            "step": "installPlugin",
-            "pluginZipFile": {
-                "resource": "url",
-                "url": "https://raw.githubusercontent.com/StevenDufresne/patterns-everywhere/trunk/gutenberg_fix.zip"
-            }
-        }
-    ]
-}
-```
-
 TODO: The patched gutenberg version is being loaded but the extension is not injecting `wp-plugin` into the iframe yet so this isn't working.
 
 ## Known Issues:
