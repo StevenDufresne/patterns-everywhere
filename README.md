@@ -27,10 +27,6 @@ This is the Interface for copying HTML and adding it to the clipboard.
 
 Ideally these modifications would ship with Gutenberg in the future but since this is still experimental, this plugin is loaded when viewing the block editor and we register a block so we can handle `raw` transforms. In the future, it would be more ideal to ship this in Gutenberg closer to the [source code](https://github.com/WordPress/gutenberg/tree/1240294d1c81bf50bd9383b7f1973cc16fa13a4a/packages/blocks/src/api/raw-handling).
 
-### IMPORTANT
-
-Gutenberg currently has a `divNormaliser` that won't allow this to work. You can view the source [here](https://github.com/WordPress/gutenberg/blob/1240294d1c81bf50bd9383b7f1973cc16fa13a4a/packages/blocks/src/api/raw-handling/paste-handler.js#L195). Until we can make this configurable, you'll need to run this project on a local version of gutenberg that has that line commented out.
-
 ## How to install this extension on your computer
 ### Open Chrome Extensions Page:
 Open Google Chrome and go to the extensions page by either:
@@ -49,8 +45,6 @@ Once developer mode is enabled, three new buttons will appear near the top of th
 - Click the "Load unpacked" button.
 - In the file dialog that opens, navigate to the directory where your extension files are located and select it.
 
-
-
 ## Where to paste?
 
 You can visit the options page and it should load WordPress playground with a patched version of gutenberg that will handle the pasting.
@@ -58,8 +52,6 @@ You can visit the options page and it should load WordPress playground with a pa
 ### How to view the option page
 - Right click on the extension icon
 - Select "options"
-
-TODO: The patched gutenberg version is being loaded but the extension is not injecting `wp-plugin` into the iframe yet so this isn't working.
 
 ## Known Issues:
 
