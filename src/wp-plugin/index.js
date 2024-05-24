@@ -3,9 +3,12 @@ const createBlock = wp.blocks.createBlock;
 const addFilter = wp.hooks.addFilter;
 const removeFilter = wp.hooks.removeFilter;
 const findTransform = wp.blocks.findTransform;
-const getRawTransforms = wp.blocks.getRawTransforms;
+const getBlockTransforms = wp.blocks.getBlockTransforms;
 
-import { getBlockAttributes as _getBlockAttributes } from './utils';
+import {
+	getBlockAttributes as _getBlockAttributes,
+	getRawTransforms,
+} from './utils';
 
 const customBlockName = 'patterns-everywhere/block-for-transform';
 const matchingElements = [ 'div', 'section', 'main' ];
@@ -115,8 +118,9 @@ registerBlockType( customBlockName, {
 								node.tagName.toLowerCase()
 							)
 						) {
+							const transforms = getBlockTransforms( 'from' );
 							const rawTransform = findTransform(
-								getRawTransforms(),
+								getRawTransforms( transforms ),
 								( { isMatch } ) =>
 									isMatch( node ) &&
 									! matchingElements.includes(

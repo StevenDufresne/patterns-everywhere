@@ -30,6 +30,21 @@ export const getBlockAttributes = ( node ) => {
 	return convertPropsToAttributes( stylesSetOnElement );
 };
 
+export const getRawTransforms = ( transforms ) => {
+	return transforms
+		.filter( ( { type } ) => type === 'raw' )
+		.map( ( transform ) => {
+			return transform.isMatch
+				? transform
+				: {
+						...transform,
+						isMatch: ( node ) =>
+							transform.selector &&
+							node.matches( transform.selector ),
+				  };
+		} );
+};
+
 /**
  * Convert the style attributes to block attributes.
  * @param {string} props The style attributes.
