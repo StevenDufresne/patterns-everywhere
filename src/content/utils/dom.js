@@ -87,40 +87,56 @@ export const getMatchingRules = ( element, rules ) => {
  * @return {Object} styles. Ie: { color: 'red', 'font-size': '16px' }
  */
 export const getElementStyles = ( element, computedStyles, rules ) => {
-	return Array.from( computedStyles ).reduce( ( styles, prop ) => {
-		const tagName = element.tagName;
-		const supports = getBlockSupports( tagName );
+	const tagName = element.tagName;
+	let supportedProperties = getBlockSupports( tagName );
 
-		if ( ! supports.includes( prop ) ) {
-			return styles;
+	// filter out border color when there isn't a border width set
+	// Gutenberg will render a border even without a width, so we need to include it.
+	supportedProperties = supportedProperties.filter( ( prop ) => {
+		const attrs = {
+			'border-bottom-color': 'border-bottom-width',
+			'border-left-color': 'border-left-width',
+			'border-right-color': 'border-right-width',
+			'border-top-color': 'border-top-width',
+		};
+
+		if ( attrs[ prop ] ) {
+			if ( computedStyles.getPropertyValue( attrs[ prop ] ) === '0px' ) {
+				return false;
+			}
 		}
 
-		const value = computedStyles.getPropertyValue( prop );
+		return true;
+	} );
 
-		if ( shouldIgnore( tagName, prop, value ) ) {
-			return styles;
-		}
-
+	return Array.from( supportedProperties ).reduce( ( styles, prop ) => {
 		const directlyAppliedValue = getDirectlyAppliedStyleValue(
 			prop,
 			element.style,
 			rules
 		);
 
-		if ( ! directlyAppliedValue ) {
+		// If it's not directly applied, we don't want to include it.
+		// It createsa a lot of noise in the clipboard and can render incorrectly in Gutenberg.
+		// if ( ! directlyAppliedValue ) {
+		// 	return styles;
+		// }
+
+		let value = directlyAppliedValue;
+
+		// If the value is a variable, we need to get the computed value instead.
+		if (
+			! directlyAppliedValue ||
+			directlyAppliedValue.includes( 'var(' )
+		) {
+			value = computedStyles.getPropertyValue( prop );
+		}
+
+		if ( shouldIgnore( tagName, prop, value ) ) {
 			return styles;
 		}
 
-		// If we get a CSS variable, let's use it's computed style.
-		// Its hard to figure out that value.
-		// We can try to find it with getComputedStyle(element).getPropertyValue( { variable } ), but it's not clear where it is set.
-		// It can be set on any parent element all the way up to the
-		// So we will just use the computed value for now.
-		if ( directlyAppliedValue.startsWith( 'var' ) ) {
-			styles[ prop ] = value;
-		} else {
-			styles[ prop ] = directlyAppliedValue;
-		}
+		styles[ prop ] = value;
 
 		return styles;
 	}, {} );
@@ -150,6 +166,7 @@ export function addComputedStylesToElementStyleAttribute(
 			originalElement,
 			styleSheetRules
 		);
+
 		const computedStyles = getElementStyles(
 			originalElement,
 			getComputedStyle( originalElement ),
@@ -157,7 +174,6 @@ export function addComputedStylesToElementStyleAttribute(
 		);
 
 		const styleString = getStylesString( computedStyles );
-
 		// Append the styles to the cloned version of the element.
 		if ( styleString.length > 0 ) {
 			clonedOriginalElement.setAttribute( 'style', styleString );
@@ -194,7 +210,7 @@ export function getContentsToCopy( window, rootElement ) {
 
 	// For now, our code will trigger with a div so we need the first element to be a <div>.
 	return clonedElement.tagName !== 'DIV'
-		? `<div>${ clonedElement.outerHTML } </div>`
+		? `<div>${ clonedElement.outerHTML.trim() }</div>`
 		: clonedElement.outerHTML;
 }
 
@@ -209,6 +225,7 @@ export function copyElementAndContent( rootElement, document ) {
 	}
 
 	const textarea = document.createElement( 'textarea' );
+
 	const contents = getContentsToCopy( window, rootElement );
 
 	// Wrap with a div so we hit our `raw` transfer.

@@ -23,8 +23,10 @@ export const getBlockSupports = ( tagName ) => {
 	switch ( tagName.toLowerCase() ) {
 		case 'div':
 		case 'ul':
+		case 'li':
 		case 'section':
 		case 'main':
+		case 'nav':
 			return [
 				...defaultBlockElementSupports,
 				...supportsBorderRadius,
@@ -64,13 +66,14 @@ export const shouldIgnore = ( tagName, property, value ) => {
 		case 'section':
 		case 'main':
 		case 'ul':
+		case 'li':
+		case 'nav':
 			relevantProperties = [
 				...supportsBorderRadius,
 				...supportsBorder,
 				...supportsDimensions,
 			];
 			break;
-		// Add more cases here if there are other specific tags with unique supports.
 		default:
 			relevantProperties = [];
 	}

@@ -75,5 +75,6 @@ fetch( chrome.runtime.getURL( 'build/wp-plugin/index.js' ) )
 		document.body.appendChild( iframe );
 	} )
 	.catch( ( error ) => {
+		// eslint-disable-next-line no-console
 		console.error( 'Error fetching JavaScript file:', error );
 	} );

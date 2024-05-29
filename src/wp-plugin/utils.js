@@ -27,7 +27,7 @@ export const getBlockAttributes = ( node ) => {
 		return {};
 	}
 
-	return convertPropsToAttributes( stylesSetOnElement );
+	return convertPropsToAttributes( stylesSetOnElement, node );
 };
 
 export const getRawTransforms = ( transforms ) => {
@@ -69,10 +69,10 @@ const convertPropsToAttributes = ( props ) => {
 				color: {},
 			},
 		},
+		typography: {},
 	};
 
 	const layoutAttributes = {};
-	const typographyAttributes = {};
 	let align = '';
 	let textAlign = '';
 
@@ -170,16 +170,16 @@ const convertPropsToAttributes = ( props ) => {
 			styleAttributes.border.left.width = value;
 		},
 		'line-height': ( value ) => {
-			typographyAttributes.lineHeight = value;
+			styleAttributes.typography.lineHeight = value;
 		},
 		'font-size': ( value ) => {
-			typographyAttributes.fontSize = value;
+			styleAttributes.typography.fontSize = value;
 		},
 		'font-weight': ( value ) => {
-			typographyAttributes.fontWeight = value;
+			styleAttributes.typography.fontWeight = value;
 		},
 		'font-style': ( value ) => {
-			typographyAttributes.fontStyle = value;
+			styleAttributes.typography.fontStyle = value;
 		},
 		'text-align': ( value ) => {
 			// Paragraphs use this.
@@ -187,6 +187,12 @@ const convertPropsToAttributes = ( props ) => {
 
 			// Headings use this.
 			textAlign = value;
+		},
+		'row-gap': ( value ) => {
+			styleAttributes.spacing.blockGap = value;
+		},
+		'column-gap': ( value ) => {
+			styleAttributes.spacing.blockGap = value;
 		},
 	};
 
@@ -203,7 +209,6 @@ const convertPropsToAttributes = ( props ) => {
 	return {
 		style: styleAttributes,
 		layout: layoutAttributes,
-		typography: typographyAttributes,
 		align,
 		textAlign,
 	};

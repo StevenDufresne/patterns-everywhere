@@ -39,6 +39,11 @@ export const supportsDisplayTypes = [
 	'align-items',
 	'flex-wrap',
 	'flex-direction',
+	'flex-basis',
+	'grid-template-columns',
+	'gap',
+	'row-gap',
+	'column-gap',
 ];
 
 export const supportsDimensions = [

@@ -1,7 +1,9 @@
 import {
+	addUserControls,
 	addStyle,
 	removeStyle,
-	displayConfirmationMessage,
+	updateUserControlText,
+	removeUserControls,
 } from './utils/interface.js';
 import { copyElementAndContent } from './utils/dom.js';
 
@@ -14,6 +16,8 @@ const MESSAGE_NAMESPACE = 'PATTERNS_EVERYWHERE';
  */
 function onMouseOver( event ) {
 	addStyle( event.target );
+
+	updateUserControlText( `Copy <${ event.target.tagName.toLowerCase() }>` );
 }
 
 /**
@@ -21,8 +25,16 @@ function onMouseOver( event ) {
  * @param {MouseEvent} event
  */
 function onClick( event ) {
-	copyElementAndContent( event.target, document );
-	displayConfirmationMessage();
+	updateUserControlText( 'Copying...' );
+
+	// Make sure we update the user control text before copying the element.
+	// eslint-disable-next-line no-undef
+	requestAnimationFrame( () => {
+		setTimeout( () => {
+			copyElementAndContent( event.target, document );
+			updateUserControlText( 'Copied!' );
+		}, 0 );
+	} );
 }
 
 /**
@@ -44,10 +56,13 @@ chrome.runtime.onMessage.addListener(
 			document.body.addEventListener( 'mouseover', onMouseOver );
 			document.body.addEventListener( 'mouseout', onMouseOut );
 			document.body.addEventListener( 'click', onClick );
+
+			addUserControls();
 		} else {
 			document.body.removeEventListener( 'mouseover', onMouseOver );
 			document.body.removeEventListener( 'mouseout', onMouseOut );
 			document.body.removeEventListener( 'click', onClick );
+			removeUserControls();
 		}
 
 		sendResponse( { received: true } );
