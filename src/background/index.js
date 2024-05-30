@@ -18,7 +18,7 @@ chrome.action.onClicked.addListener( () => {
 } );
 
 chrome.tabs.onUpdated.addListener( function ( tabId, changeInfo ) {
-	if ( changeInfo.status === 'complete' ) {
+	if ( changeInfo.status === 'unloaded' ) {
 		// Turn off the plugin on page load
 		setToggleView( false );
 		setToggleState( false );
