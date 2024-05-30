@@ -88,26 +88,7 @@ export const getMatchingRules = ( element, rules ) => {
  */
 export const getElementStyles = ( element, computedStyles, rules ) => {
 	const tagName = element.tagName;
-	let supportedProperties = getBlockSupports( tagName );
-
-	// filter out border color when there isn't a border width set
-	// Gutenberg will render a border even without a width, so we need to include it.
-	supportedProperties = supportedProperties.filter( ( prop ) => {
-		const attrs = {
-			'border-bottom-color': 'border-bottom-width',
-			'border-left-color': 'border-left-width',
-			'border-right-color': 'border-right-width',
-			'border-top-color': 'border-top-width',
-		};
-
-		if ( attrs[ prop ] ) {
-			if ( computedStyles.getPropertyValue( attrs[ prop ] ) === '0px' ) {
-				return false;
-			}
-		}
-
-		return true;
-	} );
+	const supportedProperties = getBlockSupports( tagName );
 
 	return Array.from( supportedProperties ).reduce( ( styles, prop ) => {
 		const directlyAppliedValue = getDirectlyAppliedStyleValue(
@@ -117,10 +98,10 @@ export const getElementStyles = ( element, computedStyles, rules ) => {
 		);
 
 		// If it's not directly applied, we don't want to include it.
-		// It createsa a lot of noise in the clipboard and can render incorrectly in Gutenberg.
-		// if ( ! directlyAppliedValue ) {
-		// 	return styles;
-		// }
+		// It creates a a lot of noise in the clipboard and can render incorrectly in Gutenberg.
+		if ( ! directlyAppliedValue ) {
+			return styles;
+		}
 
 		let value = directlyAppliedValue;
 
@@ -180,6 +161,16 @@ export function addComputedStylesToElementStyleAttribute(
 		} else {
 			// Clear it so we don't have non-matching inline styles if we don't find any matching.
 			clonedOriginalElement.removeAttribute( 'style' );
+		}
+
+		if ( originalElement.tagName.toLowerCase() === 'img' ) {
+			// This will change src to be absolute.
+			clonedOriginalElement.setAttribute( 'src', originalElement.src );
+		}
+
+		if ( originalElement.tagName.toLowerCase() === 'a' ) {
+			// This will change href to be absolute.
+			clonedOriginalElement.setAttribute( 'href', originalElement.href );
 		}
 
 		for ( let i = 0; i < originalElement.children.length; i++ ) {

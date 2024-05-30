@@ -36,7 +36,7 @@ const handleSVG = ( node ) => {
 
 const handleAnchor = ( node, attrs ) => {
 	const commonButtonClasses = [ 'btn', 'button' ];
-	const classString = node.classList.toString(); // Convert DOMTokenList to a string
+	const classString = node.classList.toString().toLowerCase(); // Convert DOMTokenList to a string
 	const hasCommonClass = commonButtonClasses.some(
 		( cls ) => classString.indexOf( cls ) !== -1
 	);
