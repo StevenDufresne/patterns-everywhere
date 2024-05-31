@@ -9,7 +9,7 @@
 	},
 	"options_page": "src/settings/settings.html",
 	"action": {},
-	"permissions": [ "tabs", "activeTab", "storage", "scripting" ],
+	"permissions": [ "tabs", "activeTab", "storage", "scripting", "pageCapture","downloads" ],
 	"host_permissions": [ "*://*/*" ],
 	"background": {
 		"service_worker": "build/background/index.js"

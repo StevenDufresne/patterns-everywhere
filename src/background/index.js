@@ -5,6 +5,7 @@ import {
 	setToggleView,
 	togglePlugin,
 	getToggleState,
+	captureAndDownloadPageAsMHTML,
 } from './utils.js';
 
 chrome.action.onClicked.addListener( () => {
@@ -15,6 +16,7 @@ chrome.action.onClicked.addListener( () => {
 		// Flip the state and save it
 		setToggleState( ! currentState );
 	} );
+	//captureAndDownloadPageAsMHTML()
 } );
 
 chrome.tabs.onUpdated.addListener( function ( tabId, changeInfo ) {

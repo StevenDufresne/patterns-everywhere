@@ -74,8 +74,7 @@ export const getMatchingRules = ( element, rules ) => {
 			matchedRules.push( rule.style );
 		}
 	}
-
-	return matchedRules;
+	return matchedRules.reverse();
 };
 
 /**

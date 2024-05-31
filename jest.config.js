@@ -4,4 +4,5 @@ module.exports = {
 	},
 	setupFiles: [ './jest.setup.js' ],
 	testEnvironment: 'jsdom', //Text decoder patch in the setup file.
+	preset: 'jest-puppeteer',
 };

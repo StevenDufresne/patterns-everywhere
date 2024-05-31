@@ -1,17 +1,16 @@
-import {
-	createBlock,
-	registerBlockType,
-	findTransform,
-	getBlockTransforms,
-} from '@wordpress/blocks';
+/**
+ * WordPress dependencies
+ */
+import { createBlock, registerBlockType } from '@wordpress/blocks';
 import { addFilter, removeFilter } from '@wordpress/hooks';
 
+/**
+ * Local dependencies
+ */
 import {
 	getBlockAttributes as _getBlockAttributes,
-	getRawTransforms,
+	getRawTransform,
 } from './utils';
-
-const customBlockName = 'patterns-everywhere/block-for-transform';
 
 // We will handle this elements instead of using their transforms if they exist.
 const handledEls = [
@@ -21,20 +20,41 @@ const handledEls = [
 	'footer',
 	'header',
 	'article',
-	'ul',
-	'li',
-	'ol',
 	'nav',
 	'sidebar',
+	'img',
+	'figure',
+	'ul',
+	'ol',
+	'li',
 ];
 
-const handleSVG = ( node ) => {
+/**
+ * Check if the element is a local match.
+ * @param {string} tagName The element tag name.
+ * @return {boolean} Whether the element is a local match.
+ */
+const isLocalMatch = ( tagName ) => {
+	return handledEls.includes( tagName.toLowerCase() );
+};
+
+/**
+ * Transform an SVG element into a core/html block.
+ * @param {HTMLElement} node The node to transform.
+ * @return {Object} The core/html block.
+ */
+const transformSVG = ( node ) => {
 	return createBlock( 'core/html', {
 		content: node.outerHTML,
 	} );
 };
 
-const handleAnchor = ( node, attrs ) => {
+/**
+ * Transform an anchor element into a core/buttons block.
+ * @param {HTMLElement} node  The node to transform.
+ * @param {Object}      attrs The block attributes.
+ */
+const transformAnchor = ( node, attrs ) => {
 	const commonButtonClasses = [ 'btn', 'button' ];
 	const classString = node.classList.toString().toLowerCase(); // Convert DOMTokenList to a string
 	const hasCommonClass = commonButtonClasses.some(
@@ -57,6 +77,49 @@ const handleAnchor = ( node, attrs ) => {
 };
 
 /**
+ * Transform a pre or code element into a core/code block.
+ * @param {HTMLElement} node  The node to transform.
+ * @param {Object}      attrs The block attributes.
+ * @return {Object} The core/code block.
+ */
+const transformCode = ( node, attrs ) => {
+	return createBlock( 'core/code', {
+		...attrs,
+		content: node.innerText,
+	} );
+};
+
+/**
+ * Transform a list element into a core/group block.
+ * @param {HTMLElement} node  The node to transform.
+ * @param {Object}      attrs The block attributes.
+ * @return {Object} The core/group block.
+ */
+const transformList = ( node, attrs ) => {
+	return createBlock( 'core/group', attrs, [
+		createBlock( 'core/paragraph', {
+			content: node.innerText,
+		} ),
+	] );
+};
+
+/**
+ * Transform an Image element into a core/image block.
+ * @param {HTMLElement} node  The node to transform.
+ * @param {Object}      attrs The block attributes.
+ * @return {Object} The core/image block.
+ *
+ * TODO: We don't want to provide ours but the default one doesn't apply styles properly.
+ */
+const transformImage = ( node, attrs ) => {
+	return createBlock( 'core/image', {
+		...attrs,
+		url: node.src,
+		alt: node.alt,
+	} );
+};
+
+/**
  * Recurse downwards and build blocks from the bottom up so we can nest them as inner blocks.
  *
  * @param {HTMLElement} node The node to traverse.
@@ -68,15 +131,46 @@ export const recurseDOM = ( node ) => {
 	removeFilter( 'blocks.getBlockAttributes', 'steve/thing' );
 
 	for ( const child of node.children ) {
+		/**
+		 * We want to handle specific elements differently.
+		 */
 		switch ( child.tagName.toLowerCase() ) {
 			case 'a':
 				innerBlocks.push(
-					handleAnchor( child, _getBlockAttributes( child ) )
+					transformAnchor( child, _getBlockAttributes( child ) )
 				);
 				break;
+
 			case 'svg':
-				innerBlocks.push( handleSVG( child ) );
+				innerBlocks.push( transformSVG( child ) );
 				break;
+
+			case 'pre':
+			case 'code':
+				innerBlocks.push(
+					transformCode( child, _getBlockAttributes( child ) )
+				);
+				break;
+
+			case 'img':
+				innerBlocks.push(
+					transformImage( child, _getBlockAttributes( child ) )
+				);
+				break;
+
+			case 'p':
+				if (
+					child.childNodes.length === 1 &&
+					'a' === child.childNodes[ 0 ].nodeName.toLowerCase()
+				) {
+					innerBlocks.push(
+						transformAnchor(
+							child.childNodes[ 0 ],
+							_getBlockAttributes( child.childNodes[ 0 ] )
+						)
+					);
+					break;
+				}
 			default:
 				const block = recurseDOM( child );
 
@@ -86,30 +180,14 @@ export const recurseDOM = ( node ) => {
 		}
 	}
 
-	if ( ! handledEls.includes( node.tagName.toLowerCase() ) ) {
-		const transforms = getBlockTransforms( 'from' );
-		const rawTransform = findTransform(
-			getRawTransforms( transforms ),
-			( { isMatch } ) =>
-				isMatch( node ) &&
-				! handledEls.includes( node.tagName.toLowerCase() )
-		);
-
-		// Handle the core/paragraph block for p with > a child.
-		if ( 'p' === node.tagName.toLowerCase() ) {
-			if (
-				node.children.length === 1 &&
-				'a' === node.children[ 0 ].tagName.toLowerCase()
-			) {
-				return handleAnchor(
-					node.children[ 0 ],
-					_getBlockAttributes( node.children[ 0 ] )
-				);
-			}
-		}
+	/**
+	 * We want to use existing transforms for blocks that have them.
+	 */
+	if ( ! isLocalMatch( node.tagName ) ) {
+		const rawTransform = getRawTransform( node, handledEls );
 
 		// Default case for when we can't find a transform.
-		// The core/paragraph block is Gutenbergs default block.
+		// The core/paragraph block is Gutenberg's default block.
 		if ( ! rawTransform ) {
 			return createBlock( 'core/paragraph', {
 				content: node.outerHTML,
@@ -118,14 +196,7 @@ export const recurseDOM = ( node ) => {
 
 		const { transform, blockName } = rawTransform;
 
-		if ( blockName === 'core/code' ) {
-			return createBlock( 'core/code', {
-				content: node.innerText,
-			} );
-		}
-
-		// Not all blocks have raw transforms, so we need them to grab attributes from our node and not their own.
-		// If we don't do that, styles will be ignored.
+		// We want to make sure if a block uses its transform, it's uses our attributes.
 		addFilter(
 			'blocks.getBlockAttributes',
 			'steve/thing',
@@ -144,18 +215,28 @@ export const recurseDOM = ( node ) => {
 		return transform( node );
 	}
 
+	// Special case for <li> elements that don't have children.
+	if ( node.tagName.toLowerCase() === 'li' && innerBlocks.length < 1 ) {
+		return transformList( node, _getBlockAttributes( node ) );
+	}
+
 	// We don't want to create group blocks for empty containers.
 	// TODO: If we have no children we should probably create a core/spacer.
 	if ( innerBlocks.length > 0 ) {
-		const attrs = _getBlockAttributes( node );
-
-		return createBlock( 'core/group', attrs, innerBlocks );
+		return createBlock(
+			'core/group',
+			_getBlockAttributes( node ),
+			innerBlocks
+		);
 	}
 
 	return false;
 };
 
-registerBlockType( customBlockName, {
+/**
+ * For now, register our own block so we can provide custom transforms.
+ */
+registerBlockType( 'patterns-everywhere/block-for-transform', {
 	title: 'Pattern Everywhere Block',
 	icon: 'smiley',
 	category: 'common',
@@ -163,17 +244,15 @@ registerBlockType( customBlockName, {
 		from: [
 			{
 				type: 'raw',
-				isMatch: ( node ) =>
-					handledEls.includes( node.nodeName.toLowerCase() ),
+				priority: 1,
+				isMatch: ( node ) => isLocalMatch( node.nodeName ),
 				schema: () => ( {
 					div: {
-						attributes: [ 'style', 'src', 'href' ],
+						attributes: [ 'style', 'src', 'href', 'alt' ],
 						children: '*',
 					},
 				} ),
-				transform: ( element ) => {
-					return recurseDOM( element );
-				},
+				transform: recurseDOM,
 			},
 		],
 	},

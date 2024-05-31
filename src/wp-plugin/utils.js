@@ -1,3 +1,5 @@
+import { findTransform, getBlockTransforms } from '@wordpress/blocks';
+
 /**
  * Get the key and value from a string.
  * @param {string} value The value to split.
@@ -30,19 +32,25 @@ export const getBlockAttributes = ( node ) => {
 	return convertPropsToAttributes( stylesSetOnElement, node );
 };
 
-export const getRawTransforms = ( transforms ) => {
-	return transforms
+export const getRawTransform = ( node, excludes = [] ) => {
+	const rawTransforms = getBlockTransforms( 'from' )
 		.filter( ( { type } ) => type === 'raw' )
 		.map( ( transform ) => {
 			return transform.isMatch
 				? transform
 				: {
 						...transform,
-						isMatch: ( node ) =>
+						isMatch: () =>
 							transform.selector &&
 							node.matches( transform.selector ),
 				  };
 		} );
+
+	return findTransform(
+		rawTransforms,
+		( { isMatch } ) =>
+			isMatch( node ) && ! excludes.includes( node.tagName.toLowerCase() )
+	);
 };
 
 /**
@@ -88,6 +96,9 @@ const convertPropsToAttributes = ( props ) => {
 			}
 
 			// Don't handle `display:block`; causes Gutenberg crashes.
+		},
+		'align-items': ( value ) => {
+			layoutAttributes.justifyContent = value;
 		},
 		'justify-content': ( value ) => {
 			layoutAttributes.justifyContent = value;

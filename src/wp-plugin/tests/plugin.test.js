@@ -73,7 +73,7 @@ describe( 'General tests', () => {
 		expect( result.innerBlocks.length ).toBe( 1 );
 	} );
 
-	it( 'Should return core/group blocks for ul, li', () => {
+	it( 'Should return core/group blocks for ul, li with inner content', () => {
 		const html = `<div><ul><li><h3>Title</h3><p>Content</p></li></ul></div>`;
 		const { window } = new JSDOM( html );
 		const result = recurseDOM( window.document.body.firstChild );
@@ -88,6 +88,18 @@ describe( 'General tests', () => {
 		expect(
 			result.innerBlocks[ 0 ].innerBlocks[ 0 ].innerBlocks[ 1 ].name
 		).toBe( 'core/paragraph' );
+	} );
+
+	it( 'Should return core/group blocks for ul, li', () => {
+		const html = `<div><ul style="line-height:1.75;padding-left:16px"><li>A world of thought-provoking articles.</li></ul></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		const ul = result.innerBlocks[ 0 ];
+		const li = ul.innerBlocks[ 0 ];
+		const paragraph = li.innerBlocks[ 0 ];
+
+		expect( paragraph.name ).toBe( 'core/paragraph' );
 	} );
 
 	it( 'Should return a core/paragraph for an a tag that wrap elements', () => {
@@ -180,5 +192,41 @@ describe( 'Pre/Code', () => {
 		const result = recurseDOM( window.document.body.firstChild );
 
 		expect( result.innerBlocks[ 0 ].name ).toBe( 'core/code' );
+	} );
+} );
+
+describe( 'Figure/Image', () => {
+	it( 'Should return core/image block', () => {
+		const html = `<div><img src="//wp.org/test.png" alt="alt-text"></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		expect( result.innerBlocks[ 0 ].name ).toBe( 'core/image' );
+		expect( result.innerBlocks[ 0 ].attributes.url ).toBe(
+			'//wp.org/test.png'
+		);
+		expect( result.innerBlocks[ 0 ].attributes.alt ).toBe( 'alt-text' );
+	} );
+
+	// This isn't ideal we probably don't want to add an extra group but it keeps the code simple.
+	it( 'Should return core/group block for <figure>', () => {
+		const html = `<div><figure><img src="//wp.org/test.png"></figure></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		expect( result.innerBlocks[ 0 ].name ).toBe( 'core/group' );
+	} );
+
+	it( 'Should apply styles', () => {
+		const html = `<div><img style="border-right-width:1px;border-right-color:red;" src="//wp.org/test.png"></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		expect(
+			result.innerBlocks[ 0 ].attributes.style.border.right.width
+		).toBe( '1px' );
+		expect(
+			result.innerBlocks[ 0 ].attributes.style.border.right.color
+		).toBe( 'red' );
 	} );
 } );
