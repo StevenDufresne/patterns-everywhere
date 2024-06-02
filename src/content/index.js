@@ -46,9 +46,9 @@ function onMouseOut( event ) {
 }
 
 /* global chrome */
-chrome.runtime.onMessage.addListener(
+chrome?.runtime?.onMessage?.addListener(
 	function ( message, sender, sendResponse ) {
-		if ( message.sender && message.sender !== MESSAGE_NAMESPACE ) {
+		if ( ! message.sender || message.sender !== MESSAGE_NAMESPACE ) {
 			return;
 		}
 
