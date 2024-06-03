@@ -97,9 +97,6 @@ const convertPropsToAttributes = ( props ) => {
 
 			// Don't handle `display:block`; causes Gutenberg crashes.
 		},
-		'align-items': ( value ) => {
-			layoutAttributes.justifyContent = value;
-		},
 		'justify-content': ( value ) => {
 			layoutAttributes.justifyContent = value;
 		},

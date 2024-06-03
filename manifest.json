@@ -17,7 +17,8 @@
 	"content_scripts": [
 		{
 			"js": [ "build/content/index.js" ],
-			"matches": [ "<all_urls>" ]
+			"matches": [ "<all_urls>" ],
+			"world": "MAIN"
 		},
 		{
 			"js": [ "build/wp-plugin/index.js" ],

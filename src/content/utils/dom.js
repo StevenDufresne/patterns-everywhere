@@ -97,8 +97,8 @@ export const getElementStyles = ( element, computedStyles, rules ) => {
 		);
 
 		// If it's not directly applied, we don't want to include it.
-		// It creates a a lot of noise in the clipboard and can render incorrectly in Gutenberg.
-		if ( ! directlyAppliedValue ) {
+		// It creates a lot of noise in the clipboard and can render incorrectly in Gutenberg.
+		if ( ! directlyAppliedValue && prop !== 'color' ) {
 			return styles;
 		}
 
@@ -154,6 +154,7 @@ export function addComputedStylesToElementStyleAttribute(
 		);
 
 		const styleString = getStylesString( computedStyles );
+
 		// Append the styles to the cloned version of the element.
 		if ( styleString.length > 0 ) {
 			clonedOriginalElement.setAttribute( 'style', styleString );

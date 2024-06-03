@@ -159,6 +159,7 @@ export const recurseDOM = ( node ) => {
 				break;
 
 			case 'p':
+				// If the paragraph has a single anchor child, we want to transform it to a button maybe.
 				if (
 					child.childNodes.length === 1 &&
 					'a' === child.childNodes[ 0 ].nodeName.toLowerCase()
@@ -181,7 +182,7 @@ export const recurseDOM = ( node ) => {
 	}
 
 	/**
-	 * We want to use existing transforms for blocks that have them.
+	 * We want to use existing transforms for blocks that have them and don't match our custom elements above.
 	 */
 	if ( ! isLocalMatch( node.tagName ) ) {
 		const rawTransform = getRawTransform( node, handledEls );

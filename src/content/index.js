@@ -5,7 +5,7 @@ import {
 	updateUserControlText,
 	removeUserControls,
 } from './utils/interface.js';
-import { copyElementAndContent } from './utils/dom.js';
+import { copyElementAndContent, getContentsToCopy } from './utils/dom.js';
 
 // Constants
 const MESSAGE_NAMESPACE = 'PATTERNS_EVERYWHERE';
@@ -68,3 +68,8 @@ chrome?.runtime?.onMessage?.addListener(
 		sendResponse( { received: true } );
 	}
 );
+
+// Export the copyElementAndContent function for testing.
+window.__PatternEverywhere = {
+	getContentsToCopy,
+};
