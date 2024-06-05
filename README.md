@@ -1,7 +1,7 @@
 # Patterns Everywhere
 
 
-![Demo GIF of patterns everywhre](https://github.com/StevenDufresne/patterns-everywhere/blob/trunk/assets/copy-paste.gif)
+![Demo GIF of patterns everywhre](https://github.com/StevenDufresne/patterns-everywhere/blob/trunk/assets/copy-paste-wordpress.gif)
 
 This is the repository for a chrome extension that allow users to copy HTML and paste it into Gutenberg. 
 
