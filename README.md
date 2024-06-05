@@ -1,5 +1,8 @@
 # Patterns Everywhere
 
+
+![Demo GIF of patterns everywhre](https://github.com/StevenDufresne/patterns-everywhere)
+
 This is the repository for a chrome extension that allow users to copy HTML and paste it into Gutenberg. 
 
 It is composed of 3 main parts:
