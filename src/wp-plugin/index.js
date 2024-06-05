@@ -56,7 +56,7 @@ const transformSVG = ( node ) => {
  */
 const transformAnchor = ( node, attrs ) => {
 	const commonButtonClasses = [ 'btn', 'button' ];
-	const classString = node.classList.toString().toLowerCase(); // Convert DOMTokenList to a string
+	const classString = node.classList.toString().toLowerCase();
 	const hasCommonClass = commonButtonClasses.some(
 		( cls ) => classString.indexOf( cls ) !== -1
 	);
@@ -130,6 +130,7 @@ export const recurseDOM = ( node ) => {
 
 	removeFilter( 'blocks.getBlockAttributes', 'steve/thing' );
 
+	// TODO: node.children disregards Text nodes, we should probably use node.childNodes.
 	for ( const child of node.children ) {
 		/**
 		 * We want to handle specific elements differently.
@@ -140,7 +141,6 @@ export const recurseDOM = ( node ) => {
 					transformAnchor( child, _getBlockAttributes( child ) )
 				);
 				break;
-
 			case 'svg':
 				innerBlocks.push( transformSVG( child ) );
 				break;
@@ -172,6 +172,7 @@ export const recurseDOM = ( node ) => {
 					);
 					break;
 				}
+
 			default:
 				const block = recurseDOM( child );
 

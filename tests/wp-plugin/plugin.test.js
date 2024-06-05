@@ -27,7 +27,7 @@ describe( 'General tests', () => {
 
 	it( 'Should apply correct display styles', () => {
 		const html =
-			'<div style="display:flex;background:red;padding-left:10px"><h1>Heading</h1></div>';
+			'<div style="display:flex;background-color:red;padding-left:10px"><h1>Heading</h1></div>';
 		const { window } = new JSDOM( html );
 		const result = recurseDOM( window.document.body.firstChild );
 
@@ -109,6 +109,58 @@ describe( 'General tests', () => {
 
 		expect( result.innerBlocks[ 0 ].name ).toBe( 'core/paragraph' );
 	} );
+} );
+
+describe( 'Container tests', () => {
+	it( 'Should be a core/group', () => {
+		const html = `<div><h3>Title</h3></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		const { attributes } = result.innerBlocks[ 0 ];
+		expect( result.name ).toBe( 'core/group' );
+	} );
+
+	it( 'Should be a core/group as Row', () => {
+		const html = `<div style="display:flex;"><div><h3>Heading</h3></div><p>Content</p></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		const { attributes } = result;
+		expect( attributes.layout.type ).toBe( 'flex' );
+	} );
+
+	it( 'Should be a core/group as Stack', () => {
+		const html = `<div style="display:flex;flex-direction:column;justify-content:center"><div><h3>Heading</h3></div><p>Content</p></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		const { attributes } = result;
+
+		expect( attributes.layout.type ).toBe( 'flex' );
+		expect( attributes.layout.orientation ).toBe( 'vertical' );
+		expect( attributes.layout.justifyContent ).toBe( 'center' );
+	} );
+
+	it( 'Should be a core/group as Grid', () => {
+		const html = `<div style="display:grid;"><div><h3>Heading</h3></div><p>Content</p></div>`;
+		const { window } = new JSDOM( html );
+		const result = recurseDOM( window.document.body.firstChild );
+
+		const { attributes } = result;
+		expect( attributes.layout.type ).toBe( 'grid' );
+	} );
+
+	// it( 'Should handle div with text content', () => {
+	// 	const html = `<div>This is content with an anchor <a href="https://make.wordpress.org/themes/">Test link</a>.</div>`;
+	// 	const { window } = new JSDOM( html );
+
+	// 	const result = recurseDOM( window.document.body.firstChild );
+
+	// 	const { attributes } = result;
+
+	// 	console.log( result.innerBlocks[ 0 ] );
+	// } );
 } );
 
 describe( 'Heading', () => {

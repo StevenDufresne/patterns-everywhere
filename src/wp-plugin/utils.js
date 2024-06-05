@@ -107,9 +107,6 @@ const convertPropsToAttributes = ( props ) => {
 				layoutAttributes.orientation = 'horizontal';
 			}
 		},
-		background: ( value ) => {
-			styleAttributes.color.background = value;
-		},
 		'background-color': ( value ) => {
 			styleAttributes.color.background = value;
 		},
@@ -213,6 +210,12 @@ const convertPropsToAttributes = ( props ) => {
 			styleMappings[ key ]( value );
 		}
 	}
+
+	[ 'top', 'right', 'bottom', 'left' ].forEach( ( direction ) => {
+		if ( ! styleAttributes.border[ direction ].width ) {
+			delete styleAttributes.border[ direction ].color;
+		}
+	} );
 
 	return {
 		style: styleAttributes,

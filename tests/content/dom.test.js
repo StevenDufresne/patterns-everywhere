@@ -17,6 +17,25 @@ describe( 'Style formatting', function () {
 	} );
 } );
 
+// describe( 'Clean up', function () {
+// 	test( 'Convert styles object to a string', () => {
+// 		const styles = {
+// 			color: 'red',
+// 			'background-color': 'blue',
+// 		};
+
+// 		const result = addComputedStylesToElementStyleAttribute( styles );
+
+// 		export function addComputedStylesToElementStyleAttribute(
+// 			element,
+// 			clonedElement,
+// 			getComputedStyle
+// 		) {
+
+// 		expect( result ).toBe( 'color:red;background-color:blue' );
+// 	} );
+// } );
+
 // describe( 'getElementStyles', () => {
 // 	let computedStylesMock, document;
 

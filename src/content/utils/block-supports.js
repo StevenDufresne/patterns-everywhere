@@ -57,7 +57,7 @@ export const getBlockSupports = ( tagName ) => {
  * @param {string} value    The value of the property.
  * @return {boolean} Whether the property should be ignored.
  */
-export const shouldIgnore = ( tagName, property, value ) => {
+export const shouldIgnoreValue = ( tagName, property, value ) => {
 	const isZeroValue = value === '0' || value === '0px';
 	let relevantProperties = [];
 

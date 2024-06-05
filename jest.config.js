@@ -3,8 +3,6 @@ module.exports = {
 		'^.+\\.jsx?$': 'babel-jest', // Transform JavaScript files using babel-jest
 	},
 	setupFiles: [ './jest.setup.js' ],
-	testEnvironment: 'jsdom', 
-	testPathIgnorePatterns: [
-		'/tests/e2e/*'
-	],
+	testEnvironment: 'jsdom',
+	testPathIgnorePatterns: [ '/tests/e2e/*' ],
 };

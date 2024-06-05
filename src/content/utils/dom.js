@@ -1,4 +1,4 @@
-import { getBlockSupports, shouldIgnore } from './block-supports.js';
+import { getBlockSupports, shouldIgnoreValue } from './block-supports.js';
 
 /**
  * Convert styles object to a string.
@@ -20,7 +20,7 @@ export const getStylesString = ( styles ) => {
  * @param {Array}  matchedRules
  * @return {string} value. IE: "red" or "10px", empty if not found.
  */
-function getDirectlyAppliedStyleValue( property, inlineStyles, matchedRules ) {
+function getSpecificValue( property, inlineStyles, matchedRules ) {
 	// Check inline styles
 	if ( inlineStyles[ property ] ) {
 		return inlineStyles[ property ];
@@ -74,7 +74,7 @@ export const getMatchingRules = ( element, rules ) => {
 			matchedRules.push( rule.style );
 		}
 	}
-	return matchedRules.reverse();
+	return matchedRules;
 };
 
 /**
@@ -90,29 +90,16 @@ export const getElementStyles = ( element, computedStyles, rules ) => {
 	const supportedProperties = getBlockSupports( tagName );
 
 	return Array.from( supportedProperties ).reduce( ( styles, prop ) => {
-		const directlyAppliedValue = getDirectlyAppliedStyleValue(
-			prop,
-			element.style,
-			rules
-		);
+		const specificValue = getSpecificValue( prop, element.style, rules );
 
-		// If it's not directly applied, we don't want to include it.
-		// It creates a lot of noise in the clipboard and can render incorrectly in Gutenberg.
-		if ( ! directlyAppliedValue && prop !== 'color' ) {
-			return styles;
-		}
+		let value = specificValue;
 
-		let value = directlyAppliedValue;
-
-		// If the value is a variable, we need to get the computed value instead.
-		if (
-			! directlyAppliedValue ||
-			directlyAppliedValue.includes( 'var(' )
-		) {
+		// If the value is a variable, we'll use computed value as backup.
+		if ( ! specificValue || specificValue.includes( 'var(' ) ) {
 			value = computedStyles.getPropertyValue( prop );
 		}
 
-		if ( shouldIgnore( tagName, prop, value ) ) {
+		if ( shouldIgnoreValue( tagName, prop, value ) ) {
 			return styles;
 		}
 
@@ -142,6 +129,10 @@ export function addComputedStylesToElementStyleAttribute(
 	const styleSheetRules = getStyleSheetRules( document );
 
 	const processElement = ( originalElement, clonedOriginalElement ) => {
+		if ( ! clonedOriginalElement ) {
+			return;
+		}
+
 		const matchingStyleSheetRules = getMatchingRules(
 			originalElement,
 			styleSheetRules
@@ -192,6 +183,11 @@ export function addComputedStylesToElementStyleAttribute(
  */
 export function getContentsToCopy( window, rootElement ) {
 	const clonedElement = rootElement.cloneNode( true );
+
+	// Remove all the script and style tags
+	Array.from( clonedElement.querySelectorAll( 'script, style' ) ).forEach(
+		( node ) => node.remove()
+	);
 
 	addComputedStylesToElementStyleAttribute(
 		rootElement,

@@ -4,7 +4,7 @@
  * See: https://developer.wordpress.org/block-editor/reference-guides/block-api/block-supports/
  */
 
-export const supportsColor = [ 'color', 'background-color', 'background' ];
+export const supportsColor = [ 'color', 'background-color' ];
 
 export const supportsBorderRadius = [
 	'border-top-left-radius',
@@ -38,7 +38,6 @@ export const supportsDisplayTypes = [
 	'justify-content',
 	'align-items',
 	'flex-wrap',
-	'flex-direction',
 	'flex-basis',
 	'grid-template-columns',
 	'gap',

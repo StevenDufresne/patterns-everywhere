@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 import { serialize } from '@wordpress/blocks';
 import { recurseDOM } from '../../src/wp-plugin/index';
 
@@ -29,7 +29,7 @@ const { registerCoreBlocks } = require( '@wordpress/block-library' );
 // Register core blocks
 registerCoreBlocks();
 
-test( 'has title', async ( { page, context } ) => {
+test( 'has title', async ( { page } ) => {
 	// Chrome is undefined so we need to define it
 	await page.addInitScript( () => {
 		window.chrome = {};
@@ -51,13 +51,16 @@ test( 'has title', async ( { page, context } ) => {
 		);
 	} );
 
-	await page.locator( 'body' ).screenshot( { path: 'screenshot-initial.png' } );
+	await page
+		.locator( 'body' )
+		.screenshot( { path: 'screenshot-initial.png' } );
 
 	// Get the pattern
 	const { window } = new JSDOM( html );
 	const result = recurseDOM( window.document.body.firstChild );
 	const pattern = serialize( result );
 
-	// TO DO: Get a screenshot of the pattern
+	console.log( pattern );
 
+	// TO DO: Get a screenshot of the pattern
 } );

@@ -46,7 +46,7 @@ function onMouseOut( event ) {
 }
 
 /* global chrome */
-chrome?.runtime?.onMessage?.addListener(
+chrome.runtime.onMessage.addListener(
 	function ( message, sender, sendResponse ) {
 		if ( ! message.sender || message.sender !== MESSAGE_NAMESPACE ) {
 			return;
@@ -69,7 +69,7 @@ chrome?.runtime?.onMessage?.addListener(
 	}
 );
 
-// Export the copyElementAndContent function for testing.
+// Export the getContentsToCopy function for testing.
 window.__PatternEverywhere = {
 	getContentsToCopy,
 };
